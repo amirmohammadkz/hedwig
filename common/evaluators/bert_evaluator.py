@@ -88,7 +88,7 @@ class BertEvaluator(object):
 
         predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels)
         print("target labels:")
-        print(target_labels)
+        print(target_labels.shape)
         accuracy = metrics.accuracy_score(target_labels, predicted_labels)
         precision = metrics.precision_score(target_labels, predicted_labels, average='micro')
         recall = metrics.recall_score(target_labels, predicted_labels, average='micro')
