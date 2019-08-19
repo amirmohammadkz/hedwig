@@ -42,7 +42,7 @@ def process_labels(string):
 
 class Reuters(TabularDataset):
     NAME = 'Reuters'
-    NUM_CLASSES = 90
+    NUM_CLASSES = 2
     IS_MULTILABEL = True
 
     TEXT_FIELD = Field(batch_first=True, tokenize=clean_string, include_lengths=True)
