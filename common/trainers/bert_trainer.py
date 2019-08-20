@@ -1,6 +1,7 @@
 import datetime
 import os
 
+import joblib
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, RandomSampler, TensorDataset
@@ -116,13 +117,14 @@ class BertTrainer(object):
             dev_evaluator = BertEvaluator(self.model, self.processor, self.args, split='dev')
             dev_acc, dev_precision, dev_recall, dev_f1, dev_loss, probabilities, predicted, labels = \
                 dev_evaluator.get_scores()[0]
-            self.logger.write(str(probabilities))
-            self.logger.write("\n")
-            self.logger.write(str(predicted))
-            self.logger.write("\n")
-            self.logger.write(str(labels))
-            self.logger.write("\n")
-            np.savetxt('testing.csv', probabilities, delimiter=',')
+            joblib.dump([probabilities, predicted, labels], "logs/dev" + str(epoch) + ".p")
+            # self.logger.write(str(probabilities))
+            # self.logger.write("\n")
+            # self.logger.write(str(predicted))
+            # self.logger.write("\n")
+            # self.logger.write(str(labels))
+            # self.logger.write("\n")
+            # np.savetxt('testing.csv', probabilities, delimiter=',')
 
             # Print validation results
             tqdm.write(self.log_header)
