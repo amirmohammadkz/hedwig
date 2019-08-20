@@ -115,12 +115,12 @@ class BertTrainer(object):
             self.train_epoch(train_dataloader)
             dev_evaluator = BertEvaluator(self.model, self.processor, self.args, split='dev')
             dev_acc, dev_precision, dev_recall, dev_f1, dev_loss, probabilities, predicted, labels = \
-            dev_evaluator.get_scores()[0]
-            self.logger.write(probabilities)
+                dev_evaluator.get_scores()[0]
+            self.logger.write(str(probabilities))
             self.logger.write("\n")
-            self.logger.write(predicted)
+            self.logger.write(str(predicted))
             self.logger.write("\n")
-            self.logger.write(labels)
+            self.logger.write(str(labels))
             self.logger.write("\n")
 
             # Print validation results
