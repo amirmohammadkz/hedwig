@@ -17,7 +17,8 @@ from utils.tokenization import BertTokenizer
 
 
 class BertTrainer(object):
-    def __init__(self, model, optimizer, processor, args):
+    def __init__(self, model, optimizer, processor, args, logger):
+        self.logger = logger
         self.args = args
         self.model = model
         self.optimizer = optimizer
@@ -34,7 +35,8 @@ class BertTrainer(object):
             self.num_train_optimization_steps = args.num_train_optimization_steps // torch.distributed.get_world_size()
 
         self.log_header = 'Epoch Iteration Progress   Dev/Acc.  Dev/Pr.  Dev/Re.   Dev/F1   Dev/Loss'
-        self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f},{:8.4f},{:8.4f},{:10.4f}'.split(','))
+        self.log_template = ' '.join(
+            '{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f},{:8.4f},{:8.4f},{:10.4f}'.split(','))
 
         self.iterations, self.nb_tr_steps, self.tr_loss = 0, 0, 0
         self.best_dev_f1, self.unimproved_iters = 0, 0
@@ -66,7 +68,8 @@ class BertTrainer(object):
             self.nb_tr_steps += 1
             if (step + 1) % self.args.gradient_accumulation_steps == 0:
                 if self.args.fp16:
-                    lr_this_step = self.args.learning_rate * warmup_linear(self.iterations / self.num_train_optimization_steps, self.args.warmup_proportion)
+                    lr_this_step = self.args.learning_rate * warmup_linear(
+                        self.iterations / self.num_train_optimization_steps, self.args.warmup_proportion)
                     for param_group in self.optimizer.param_groups:
                         param_group['lr'] = lr_this_step
                 self.optimizer.step()
@@ -111,7 +114,14 @@ class BertTrainer(object):
         for epoch in trange(int(self.args.epochs), desc="Epoch"):
             self.train_epoch(train_dataloader)
             dev_evaluator = BertEvaluator(self.model, self.processor, self.args, split='dev')
-            dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = dev_evaluator.get_scores()[0]
+            dev_acc, dev_precision, dev_recall, dev_f1, dev_loss, probabilities, predicted, labels = \
+            dev_evaluator.get_scores()[0]
+            self.logger.write(probabilities)
+            self.logger.write("\n")
+            self.logger.write(predicted)
+            self.logger.write("\n")
+            self.logger.write(labels)
+            self.logger.write("\n")
 
             # Print validation results
             tqdm.write(self.log_header)

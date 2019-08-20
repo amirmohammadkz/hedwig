@@ -156,7 +156,7 @@ if __name__ == '__main__':
                              warmup=args.warmup_proportion,
                              t_total=num_train_optimization_steps)
 
-    trainer = BertTrainer(model, optimizer, processor, args)
+    trainer = BertTrainer(model, optimizer, processor, args,logger_dev)
 
     if not args.trained_model:
         trainer.train()
