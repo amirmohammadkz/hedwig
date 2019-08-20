@@ -37,6 +37,7 @@ def evaluate_split(model, processor, args, split='dev'):
 if __name__ == '__main__':
     # Set default configuration in args.py
     args = get_args()
+    print(args.logger)
 
     if args.local_rank == -1 or not args.cuda:
         device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
@@ -72,7 +73,7 @@ if __name__ == '__main__':
 
     if args.gradient_accumulation_steps < 1:
         raise ValueError("Invalid gradient_accumulation_steps parameter: {}, should be >= 1".format(
-                            args.gradient_accumulation_steps))
+            args.gradient_accumulation_steps))
 
     if args.dataset not in dataset_map:
         raise ValueError('Unrecognized dataset')
@@ -101,7 +102,8 @@ if __name__ == '__main__':
         if args.local_rank != -1:
             num_train_optimization_steps = num_train_optimization_steps // torch.distributed.get_world_size()
 
-    cache_dir = args.cache_dir if args.cache_dir else os.path.join(str(PYTORCH_PRETRAINED_BERT_CACHE), 'distributed_{}'.format(args.local_rank))
+    cache_dir = args.cache_dir if args.cache_dir else os.path.join(str(PYTORCH_PRETRAINED_BERT_CACHE),
+                                                                   'distributed_{}'.format(args.local_rank))
     model = BertForSequenceClassification.from_pretrained(args.model, cache_dir=cache_dir, num_labels=args.num_labels)
 
     if args.fp16:
@@ -144,7 +146,7 @@ if __name__ == '__main__':
         optimizer = BertAdam(optimizer_grouped_parameters,
                              lr=args.lr,
                              warmup=args.warmup_proportion,
-                             t_total=num_train_optimization_steps)    
+                             t_total=num_train_optimization_steps)
 
     trainer = BertTrainer(model, optimizer, processor, args)
 
@@ -154,7 +156,7 @@ if __name__ == '__main__':
     else:
         model = BertForSequenceClassification.from_pretrained(args.model, num_labels=args.num_labels)
         model_ = torch.load(args.trained_model, map_location=lambda storage, loc: storage)
-        state={}
+        state = {}
         for key in model_.state_dict().keys():
             new_key = key.replace("module.", "")
             state[new_key] = model_.state_dict()[key]
@@ -163,4 +165,3 @@ if __name__ == '__main__':
 
     evaluate_split(model, processor, args, split='dev')
     evaluate_split(model, processor, args, split='test')
-
