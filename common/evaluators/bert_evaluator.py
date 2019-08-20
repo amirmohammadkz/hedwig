@@ -38,6 +38,8 @@ class BertEvaluator(object):
         unpadded_input_ids = [f.input_ids for f in eval_features]
         unpadded_input_mask = [f.input_mask for f in eval_features]
         unpadded_segment_ids = [f.segment_ids for f in eval_features]
+        print("unpadded_input_ids")
+        print(len(unpadded_input_ids))
 
         if self.args.is_hierarchical:
             pad_input_matrix(unpadded_input_ids, self.args.max_doc_length)
@@ -48,6 +50,8 @@ class BertEvaluator(object):
         padded_input_mask = torch.tensor(unpadded_input_mask, dtype=torch.long)
         padded_segment_ids = torch.tensor(unpadded_segment_ids, dtype=torch.long)
         label_ids = torch.tensor([f.label_id for f in eval_features], dtype=torch.long)
+        print("padded_input_ids")
+        print(len(padded_input_ids))
 
         eval_data = TensorDataset(padded_input_ids, padded_input_mask, padded_segment_ids, label_ids)
         eval_sampler = SequentialSampler(eval_data)
@@ -58,8 +62,9 @@ class BertEvaluator(object):
         total_loss = 0
         nb_eval_steps, nb_eval_examples = 0, 0
         predicted_labels, target_labels = list(), list()
-
+        x = 0
         for input_ids, input_mask, segment_ids, label_ids in tqdm(eval_dataloader, desc="Evaluating", disable=silent):
+            x += 1
             input_ids = input_ids.to(self.args.device)
             input_mask = input_mask.to(self.args.device)
             segment_ids = segment_ids.to(self.args.device)
@@ -85,7 +90,8 @@ class BertEvaluator(object):
 
             nb_eval_examples += input_ids.size(0)
             nb_eval_steps += 1
-
+        print("for size:")
+        print(x)
         predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels)
         print("target labels:")
         print(target_labels.shape)
