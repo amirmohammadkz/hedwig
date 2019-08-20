@@ -97,7 +97,8 @@ class BertEvaluator(object):
             nb_eval_steps += 1
         # print("for size:")
         # print(x)
-        predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels)
+        predicted_labels, target_labels, logits = np.array(predicted_labels), np.array(target_labels), np.asarray(
+            logits)
         # print("target labels:")
         # print(target_labels.shape)
         accuracy = metrics.accuracy_score(target_labels, predicted_labels)
@@ -106,4 +107,5 @@ class BertEvaluator(object):
         f1 = metrics.f1_score(target_labels, predicted_labels, average='micro')
         avg_loss = total_loss / nb_eval_steps
 
-        return [accuracy, precision, recall, f1, avg_loss,logits.cpu().detach().numpy(),predicted_labels,target_labels], ['accuracy', 'precision', 'recall', 'f1', 'avg_loss']
+        return [accuracy, precision, recall, f1, avg_loss, logits.cpu().detach().numpy(), predicted_labels,
+                target_labels], ['accuracy', 'precision', 'recall', 'f1', 'avg_loss']
