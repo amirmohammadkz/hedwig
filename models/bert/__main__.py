@@ -25,10 +25,16 @@ LOG_HEADER = 'Split  Dev/Acc.  Dev/Pr.  Dev/Re.   Dev/F1   Dev/Loss'
 LOG_TEMPLATE = ' '.join('{:>5s},{:>9.4f},{:>8.4f},{:8.4f},{:8.4f},{:10.4f}'.split(','))
 
 
-def evaluate_split(model, processor, args, split='dev'):
+def evaluate_split(model, processor, args, logger, split='dev'):
     evaluator = BertEvaluator(model, processor, args, split)
     start_time = time.time()
-    accuracy, precision, recall, f1, avg_loss = evaluator.get_scores(silent=True)[0]
+    accuracy, precision, recall, f1, avg_loss, probabilities, predicted, labels = evaluator.get_scores(silent=True)[0]
+    logger.write(probabilities)
+    logger.write("\n")
+    logger.write(predicted)
+    logger.write("\n")
+    logger.write(labels)
+    logger.write("\n")
     print("Inference time", time.time() - start_time)
     print('\n' + LOG_HEADER)
     print(LOG_TEMPLATE.format(split.upper(), accuracy, precision, recall, f1, avg_loss))
@@ -38,6 +44,8 @@ if __name__ == '__main__':
     # Set default configuration in args.py
     args = get_args()
     print(args.logger)
+    logger_dev = open(args.logger + "_dev.txt", "w")
+    logger_test = open(args.logger + "_test.txt", "w")
 
     if args.local_rank == -1 or not args.cuda:
         device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
@@ -163,5 +171,7 @@ if __name__ == '__main__':
         model.load_state_dict(state)
         model = model.to(device)
 
-    evaluate_split(model, processor, args, split='dev')
-    evaluate_split(model, processor, args, split='test')
+    evaluate_split(model, processor, args, logger_dev, split='dev')
+    evaluate_split(model, processor, args, logger_test, split='test')
+    logger_test.close()
+    logger_dev.close()
