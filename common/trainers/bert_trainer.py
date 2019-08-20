@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, RandomSampler, TensorDataset
 from torch.utils.data.distributed import DistributedSampler
 from tqdm import tqdm
 from tqdm import trange
-
+import numpy as np
 from common.evaluators.bert_evaluator import BertEvaluator
 from datasets.bert_processors.abstract_processor import convert_examples_to_features
 from datasets.bert_processors.abstract_processor import convert_examples_to_hierarchical_features
@@ -122,6 +122,7 @@ class BertTrainer(object):
             self.logger.write("\n")
             self.logger.write(str(labels))
             self.logger.write("\n")
+            np.savetxt("testing.out", probabilities)
 
             # Print validation results
             tqdm.write(self.log_header)

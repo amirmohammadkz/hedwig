@@ -30,6 +30,7 @@ def evaluate_split(model, processor, args, logger, split='dev'):
     start_time = time.time()
     accuracy, precision, recall, f1, avg_loss, probabilities, predicted, labels = evaluator.get_scores(silent=True)[0]
     logger.write(str(probabilities))
+    np.savetxt("testing.out", probabilities)
     logger.write("\n")
     logger.write(str(predicted))
     logger.write("\n")
@@ -156,7 +157,7 @@ if __name__ == '__main__':
                              warmup=args.warmup_proportion,
                              t_total=num_train_optimization_steps)
 
-    trainer = BertTrainer(model, optimizer, processor, args,logger_dev)
+    trainer = BertTrainer(model, optimizer, processor, args, logger_dev)
 
     if not args.trained_model:
         trainer.train()
