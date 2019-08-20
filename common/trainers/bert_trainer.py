@@ -122,7 +122,7 @@ class BertTrainer(object):
             self.logger.write("\n")
             self.logger.write(str(labels))
             self.logger.write("\n")
-            np.savetxt('testing.csv', probabilities, delimiter=',', fmt='%d')
+            np.savetxt('testing.csv', probabilities, delimiter=',')
 
             # Print validation results
             tqdm.write(self.log_header)
