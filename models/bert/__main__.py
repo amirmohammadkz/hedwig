@@ -4,6 +4,7 @@ import time
 
 import numpy as np
 import torch
+import joblib
 
 from common.evaluators.bert_evaluator import BertEvaluator
 from common.trainers.bert_trainer import BertTrainer
@@ -31,6 +32,7 @@ def evaluate_split(model, processor, args, logger, split='dev'):
     accuracy, precision, recall, f1, avg_loss, probabilities, predicted, labels = evaluator.get_scores(silent=True)[0]
     logger.write(str(probabilities))
     np.savetxt('testing.csv', probabilities, delimiter=',')
+    joblib.dump([probabilities, predicted, labels], "tmp.p")
     print(type(probabilities))
     logger.write("\n")
     logger.write(str(predicted))
