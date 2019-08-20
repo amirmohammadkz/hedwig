@@ -38,8 +38,8 @@ class BertEvaluator(object):
         unpadded_input_ids = [f.input_ids for f in eval_features]
         unpadded_input_mask = [f.input_mask for f in eval_features]
         unpadded_segment_ids = [f.segment_ids for f in eval_features]
-        print("unpadded_input_ids")
-        print(len(unpadded_input_ids))
+        # print("unpadded_input_ids")
+        # print(len(unpadded_input_ids))
 
         if self.args.is_hierarchical:
             pad_input_matrix(unpadded_input_ids, self.args.max_doc_length)
@@ -50,8 +50,8 @@ class BertEvaluator(object):
         padded_input_mask = torch.tensor(unpadded_input_mask, dtype=torch.long)
         padded_segment_ids = torch.tensor(unpadded_segment_ids, dtype=torch.long)
         label_ids = torch.tensor([f.label_id for f in eval_features], dtype=torch.long)
-        print("padded_input_ids")
-        print(len(padded_input_ids))
+        # print("padded_input_ids")
+        # print(len(padded_input_ids))
 
         eval_data = TensorDataset(padded_input_ids, padded_input_mask, padded_segment_ids, label_ids)
         eval_sampler = SequentialSampler(eval_data)
@@ -72,17 +72,17 @@ class BertEvaluator(object):
 
             with torch.no_grad():
                 logits = self.model(input_ids, segment_ids, input_mask)
-                print("logits:")
-                print(len(logits))
-                print(logits)
+                # print("logits:")
+                # print(len(logits))
+                # print(logits)
 
             if self.args.is_multilabel:
                 predicted_labels.extend(F.sigmoid(logits).round().long().cpu().detach().numpy())
                 target_labels.extend(label_ids.cpu().detach().numpy())
                 loss = F.binary_cross_entropy_with_logits(logits, label_ids.float(), size_average=False)
             else:
-                print("its not multilabel")
-                print(logits.cpu().detach().numpy())
+                # print("its not multilabel")
+                # print(logits.cpu().detach().numpy())
                 predicted_labels.extend(torch.argmax(logits, dim=1).cpu().detach().numpy())
                 target_labels.extend(torch.argmax(label_ids, dim=1).cpu().detach().numpy())
                 loss = F.cross_entropy(logits, torch.argmax(label_ids, dim=1))
@@ -95,11 +95,11 @@ class BertEvaluator(object):
 
             nb_eval_examples += input_ids.size(0)
             nb_eval_steps += 1
-        print("for size:")
-        print(x)
+        # print("for size:")
+        # print(x)
         predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels)
-        print("target labels:")
-        print(target_labels.shape)
+        # print("target labels:")
+        # print(target_labels.shape)
         accuracy = metrics.accuracy_score(target_labels, predicted_labels)
         precision = metrics.precision_score(target_labels, predicted_labels, average='micro')
         recall = metrics.recall_score(target_labels, predicted_labels, average='micro')
