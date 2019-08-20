@@ -31,6 +31,7 @@ def evaluate_split(model, processor, args, logger, split='dev'):
     accuracy, precision, recall, f1, avg_loss, probabilities, predicted, labels = evaluator.get_scores(silent=True)[0]
     logger.write(str(probabilities))
     np.savetxt("testing.out", probabilities)
+    print(type(probabilities))
     logger.write("\n")
     logger.write(str(predicted))
     logger.write("\n")
