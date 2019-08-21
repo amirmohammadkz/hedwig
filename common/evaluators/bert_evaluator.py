@@ -61,7 +61,7 @@ class BertEvaluator(object):
 
         total_loss = 0
         nb_eval_steps, nb_eval_examples = 0, 0
-        predicted_labels, target_labels = list(), list()
+        predicted_labels, target_labels, final_logits = list(), list(), list()
         x = 0
         for input_ids, input_mask, segment_ids, label_ids in tqdm(eval_dataloader, desc="Evaluating", disable=silent):
             x += 1
@@ -95,10 +95,11 @@ class BertEvaluator(object):
 
             nb_eval_examples += input_ids.size(0)
             nb_eval_steps += 1
-        # print("for size:")
-        # print(x)
-        predicted_labels, target_labels, logits = np.array(predicted_labels), np.array(target_labels), np.asarray(
-            logits.cpu().detach().numpy())
+            final_logits.extend(logits.cpu().detach().numpy())
+        print("for size:")
+        print(x)
+        predicted_labels, target_labels, final_logits = np.array(predicted_labels), np.array(target_labels), np.asarray(
+            final_logits)
         # print("target labels:")
         # print(target_labels.shape)
         accuracy = metrics.accuracy_score(target_labels, predicted_labels)
@@ -107,5 +108,5 @@ class BertEvaluator(object):
         f1 = metrics.f1_score(target_labels, predicted_labels, average='micro')
         avg_loss = total_loss / nb_eval_steps
 
-        return [accuracy, precision, recall, f1, avg_loss, logits, predicted_labels,
+        return [accuracy, precision, recall, f1, avg_loss, final_logits, predicted_labels,
                 target_labels], ['accuracy', 'precision', 'recall', 'f1', 'avg_loss']
